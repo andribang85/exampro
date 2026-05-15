@@ -96,6 +96,8 @@ class AppColors {
   static const Color rose      = Color(0xFFFB7185);
   static const Color amber     = Color(0xFFFBBF24);
 
+  static const Color blue600  = Color(0xFF1D4ED8);
+  static const Color purple400 = Color(0xFFA78BFA);
   static const Color gray700  = Color(0xFF374151);
   static const Color gray500  = Color(0xFF6B7280);
   static const Color gray400  = Color(0xFF9CA3AF);
@@ -2958,9 +2960,14 @@ class _TeacherDashboardScreenState
   ];
 
   final _students = [
-    <dynamic>['😊', 'Aktif'), ('🧑', 'Aktif'), ('😐', '⚠ Tab'],
-    <dynamic>['👩', 'Aktif'), ('🧒', 'Aktif'), ('😴', '⛔ Off'],
-    <dynamic>['👧', 'Aktif'), ('🙎', 'Aktif'],
+    <dynamic>['😊', 'Aktif'],
+    <dynamic>['🧑', 'Aktif'],
+    <dynamic>['😐', '⚠ Tab'],
+    <dynamic>['👩', 'Aktif'],
+    <dynamic>['🧒', 'Aktif'],
+    <dynamic>['😴', '⛔ Off'],
+    <dynamic>['👧', 'Aktif'],
+    <dynamic>['🙎', 'Aktif'],
   ];
 
   @override
