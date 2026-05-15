@@ -31,10 +31,280 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' show FontFeature;
+// Firebase imports - uncomment after adding Firebase to project:
+// import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 
 // ─────────────────────────────────────────────
 //  ENTRY POINT
 // ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+//  ONLINE SERVICE
+//  Mode: DEMO (default) atau FIREBASE (online)
+//  Untuk aktifkan Firebase:
+//  1. Tambah packages di pubspec.yaml
+//  2. Upload google-services.json ke android/app/
+//  3. Ganti USE_FIREBASE = true
+// ─────────────────────────────────────────────
+
+// 🔥 GANTI JADI true SETELAH SETUP FIREBASE:
+const bool USE_FIREBASE = false;
+
+class OnlineService {
+  static final OnlineService _i = OnlineService._();
+  factory OnlineService() => _i;
+  OnlineService._();
+
+  Map<String, dynamic>? currentUser;
+  bool get isLoggedIn => currentUser != null;
+
+  // ── LOGIN ────────────────────────────────────
+  Future<Map<String, dynamic>?> login({
+    required String nis,
+    required String password,
+    required String role,
+  }) async {
+    if (USE_FIREBASE) {
+      return await _loginFirebase(nis, password, role);
+    }
+    return await _loginDemo(nis, password, role);
+  }
+
+  // Demo login - works offline
+  Future<Map<String, dynamic>?> _loginDemo(
+      String nis, String password, String role) async {
+    await Future.delayed(const Duration(milliseconds: 900));
+    // Accept any non-empty credentials in demo mode
+    if (nis.isNotEmpty && password.isNotEmpty) {
+      currentUser = {
+        'uid': 'demo_${role}_001',
+        'name': role == 'siswa' ? 'Ahmad Fauzi'
+               : role == 'guru' ? 'Bu. Sari Dewi'
+               : 'Admin Sekolah',
+        'nis': nis,
+        'role': role,
+        'class': 'XII IPA 1',
+        'grade': 12,
+        'school': 'SMA Nusantara 1',
+        'schoolId': 'sma_nusantara_1',
+        'avatar': nis.substring(0, 2).toUpperCase(),
+      };
+      return currentUser;
+    }
+    return null;
+  }
+
+  // Firebase login - requires Firebase setup
+  Future<Map<String, dynamic>?> _loginFirebase(
+      String nis, String password, String role) async {
+    // NOTE: Uncomment after adding Firebase packages to pubspec.yaml
+    // try {
+    //   // Find email by NIS
+    //   final query = await FirebaseFirestore.instance
+    //       .collection('users')
+    //       .where('nis', isEqualTo: nis)
+    //       .where('role', isEqualTo: role)
+    //       .limit(1)
+    //       .get();
+    //   if (query.docs.isEmpty) return null;
+    //   final email = query.docs.first.data()['email'] as String;
+    //
+    //   // Sign in
+    //   final cred = await FirebaseAuth.instance
+    //       .signInWithEmailAndPassword(email: email, password: password);
+    //
+    //   // Get full profile
+    //   final doc = await FirebaseFirestore.instance
+    //       .collection('users').doc(cred.user!.uid).get();
+    //   currentUser = doc.data()!;
+    //   currentUser!['uid'] = cred.user!.uid;
+    //   return currentUser;
+    // } on FirebaseAuthException {
+    //   return null;
+    // }
+    return await _loginDemo(nis, password, role); // fallback
+  }
+
+  // ── GET EXAMS ────────────────────────────────
+  Future<List<Map<String, dynamic>>> getExams() async {
+    if (USE_FIREBASE) return await _getExamsFirebase();
+    return await _getExamsDemo();
+  }
+
+  Future<List<Map<String, dynamic>>> _getExamsDemo() async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    return [
+      {
+        'id': 'exam_001',
+        'subject': 'Matematika Wajib',
+        'type': 'UTS Ganjil 2026',
+        'class': currentUser?['class'] ?? 'XII IPA 1',
+        'duration': 90,
+        'questionCount': 40,
+        'status': 'active',
+        'time': 'Sekarang',
+        'token': 'A7X9B2',
+        'teacherName': 'Bu. Sari Dewi',
+      },
+      {
+        'id': 'exam_002',
+        'subject': 'Fisika',
+        'type': 'Ulangan Harian',
+        'class': currentUser?['class'] ?? 'XII IPA 1',
+        'duration': 60,
+        'questionCount': 30,
+        'status': 'upcoming',
+        'time': 'Besok, 08:00',
+        'token': '',
+        'teacherName': 'Pak. Ahmad',
+      },
+      {
+        'id': 'exam_003',
+        'subject': 'Bahasa Indonesia',
+        'type': 'UAS Semester 2',
+        'class': currentUser?['class'] ?? 'XII IPA 1',
+        'duration': 90,
+        'questionCount': 50,
+        'status': 'upcoming',
+        'time': "Jum'at, 10:00",
+        'token': '',
+        'teacherName': 'Bu. Ratna',
+      },
+    ];
+  }
+
+  Future<List<Map<String, dynamic>>> _getExamsFirebase() async {
+    // final userClass = currentUser?['class'] ?? '';
+    // final snap = await FirebaseFirestore.instance
+    //     .collection('exams')
+    //     .where('class', isEqualTo: userClass)
+    //     .where('status', whereIn: ['active', 'scheduled'])
+    //     .orderBy('startTime')
+    //     .get();
+    // return snap.docs.map((d) {
+    //   final data = d.data(); data['id'] = d.id; return data;
+    // }).toList();
+    return await _getExamsDemo();
+  }
+
+  // ── GET HISTORY ──────────────────────────────
+  Future<List<Map<String, dynamic>>> getHistory() async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return [
+      {
+        'id': 'result_001',
+        'subject': 'Kimia',
+        'type': 'Ulangan Harian',
+        'time': '3 hari lalu',
+        'score': 88,
+        'duration': 75,
+        'status': 'done',
+      },
+      {
+        'id': 'result_002',
+        'subject': 'Biologi',
+        'type': 'Kuis',
+        'time': '1 minggu lalu',
+        'score': 82,
+        'duration': 60,
+        'status': 'done',
+      },
+      {
+        'id': 'result_003',
+        'subject': 'Kimia',
+        'type': 'UTS',
+        'time': '2 minggu lalu',
+        'score': 79,
+        'duration': 90,
+        'status': 'done',
+      },
+    ];
+  }
+
+  // ── VERIFY TOKEN ─────────────────────────────
+  Future<bool> verifyToken(String examId, String token) async {
+    if (USE_FIREBASE) {
+      // final doc = await FirebaseFirestore.instance
+      //     .collection('exams').doc(examId).get();
+      // return doc.data()?['token'] == token.toUpperCase();
+    }
+    await Future.delayed(const Duration(milliseconds: 700));
+    return token.trim().length == 6;
+  }
+
+  // ── SUBMIT EXAM ──────────────────────────────
+  Future<Map<String, dynamic>> submitExam({
+    required String examId,
+    required Map<int, String> answers,
+    required bool isAutoSubmit,
+    required int timeTaken,
+  }) async {
+    if (USE_FIREBASE) return await _submitFirebase(examId, answers, isAutoSubmit, timeTaken);
+    return await _submitDemo(answers);
+  }
+
+  Future<Map<String, dynamic>> _submitDemo(Map<int, String> answers) async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+    final total = 5;
+    final correct = answers.values.where((a) => a == 'C').length + 2;
+    final safeCorrect = correct.clamp(0, total);
+    final score = (safeCorrect / total * 100).round();
+    return {
+      'score': score,
+      'correct': safeCorrect,
+      'wrong': total - safeCorrect,
+      'unanswered': total - answers.length,
+      'rank': 3,
+      'totalStudents': 32,
+      'timeTaken': 72,
+      'grade': score >= 90 ? 'A' : score >= 80 ? 'A' : score >= 70 ? 'B' : 'C',
+      'passed': score >= 70,
+      'topicScores': {
+        'Kalkulus': 90,
+        'Trigonometri': 75,
+        'Aljabar': 85,
+        'Statistika': 60,
+      },
+    };
+  }
+
+  Future<Map<String, dynamic>> _submitFirebase(String examId,
+      Map<int, String> answers, bool isAutoSubmit, int timeTaken) async {
+    // Save result to Firestore
+    // await FirebaseFirestore.instance.collection('results').add({
+    //   'examId': examId,
+    //   'studentId': currentUser?['uid'],
+    //   'studentName': currentUser?['name'],
+    //   'answers': answers.map((k, v) => MapEntry(k.toString(), v)),
+    //   'timeTaken': timeTaken,
+    //   'isAutoSubmit': isAutoSubmit,
+    //   'submittedAt': FieldValue.serverTimestamp(),
+    // });
+    return await _submitDemo(answers);
+  }
+
+  // ── LOGOUT ───────────────────────────────────
+  Future<void> logout() async {
+    // if (USE_FIREBASE) await FirebaseAuth.instance.signOut();
+    currentUser = null;
+  }
+
+  // ── GET STATS (for dashboard) ─────────────────
+  Map<String, dynamic> getStudentStats() {
+    return {
+      'avgScore': 87,
+      'examsDone': 12,
+      'upcomingCount': 3,
+      'rank': 3,
+    };
+  }
+}
+
+// Global instance
+final onlineService = OnlineService();
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([
@@ -193,44 +463,49 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: loading ? null : onTap,
-      child: Container(
-        width: width ?? double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [AppColors.blue500, AppColors.purple600],
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-          ),
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.blue500.withOpacity(0.35),
-              blurRadius: 20,
-              offset: const Offset(0, 6),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: loading ? null : onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          width: width ?? double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppColors.blue500, AppColors.purple600],
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
             ),
-          ],
-        ),
-        child: Center(
-          child: loading
-              ? const SizedBox(
-                  width: 20, height: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.white, strokeWidth: 2.5))
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (icon != null) ...[
-                      Icon(icon, color: Colors.white, size: 18),
-                      const SizedBox(width: 8),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.blue500.withOpacity(0.35),
+                blurRadius: 20,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Center(
+            child: loading
+                ? const SizedBox(
+                    width: 20, height: 20,
+                    child: CircularProgressIndicator(
+                      color: Colors.white, strokeWidth: 2.5))
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(icon, color: Colors.white, size: 18),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(label, style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w700,
+                        color: Colors.white)),
                     ],
-                    Text(label, style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w700,
-                      color: Colors.white)),
-                  ],
-                ),
+                  ),
+          ),
         ),
       ),
     );
@@ -249,20 +524,25 @@ class GhostButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: (color ?? Colors.white).withOpacity(0.15)),
-        ),
-        child: Center(
-          child: Text(label, style: TextStyle(
-            fontSize: 14, fontWeight: FontWeight.w600,
-            color: color ?? AppColors.gray200)),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: (color ?? Colors.white).withOpacity(0.15)),
+          ),
+          child: Center(
+            child: Text(label, style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.w600,
+              color: color ?? AppColors.gray200)),
+          ),
         ),
       ),
     );
@@ -367,11 +647,13 @@ class _AnimatedBgState extends State<AnimatedBg>
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return SizedBox.expand(
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_c1, _c2, _c3]),
-        builder: (_, __) => CustomPaint(
-          painter: _OrbPainter(_a1.value, _a2.value, _a3.value, size),
+    return IgnorePointer(
+      child: SizedBox.expand(
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_c1, _c2, _c3]),
+          builder: (_, __) => CustomPaint(
+            painter: _OrbPainter(_a1.value, _a2.value, _a3.value, size),
+          ),
         ),
       ),
     );
@@ -964,10 +1246,35 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+    if (_nisCtrl.text.trim().isEmpty || _passCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('NIS dan Password tidak boleh kosong!'),
+          backgroundColor: AppColors.rose,
+        ),
+      );
+      return;
+    }
     setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 1400));
+    
+    final user = await onlineService.login(
+      nis: _nisCtrl.text.trim(),
+      password: _passCtrl.text,
+      role: _role,
+    );
+    
     if (!mounted) return;
     setState(() => _loading = false);
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('NIS atau password salah!'),
+          backgroundColor: AppColors.rose,
+        ),
+      );
+      return;
+    }
 
     Widget dest;
     switch (_role) {
