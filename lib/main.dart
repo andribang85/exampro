@@ -30,6 +30,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui' show FontFeature;
 
 // ─────────────────────────────────────────────
 //  ENTRY POINT
@@ -2089,10 +2090,10 @@ class _ExamScreenState extends State<ExamScreen> {
   Widget build(BuildContext context) {
     final q = _questions[_current % _questions.length];
 
-    return WillPopScope(
-      onWillPop: () async {
-        _showExitDialog();
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) _showExitDialog();
       },
       child: Scaffold(
         backgroundColor: const Color(0xFF050A1E),
