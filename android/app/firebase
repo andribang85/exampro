@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "367120220372",
+    "project_id": "exampro-mathlaulanwar",
+    "storage_bucket": "exampro-mathlaulanwar.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367120220372:android:6f2c2c52fcb1e03243bb41",
+        "android_client_info": {
+          "package_name": "com.exampro.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbOnNnMVJ1Yh6RQze9zfiXPo8yfCy30QE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
