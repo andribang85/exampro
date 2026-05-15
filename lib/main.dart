@@ -950,9 +950,9 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscure = true;
 
   final _roles = [
-    ('siswa', '🎒', 'Siswa'),
-    ('guru', '👩‍🏫', 'Guru'),
-    ('admin', '⚙️', 'Admin'),
+    <dynamic>['siswa', '🎒', 'Siswa'],
+    <dynamic>['guru', '👩‍🏫', 'Guru'],
+    <dynamic>['admin', '⚙️', 'Admin'],
   ];
 
   @override
@@ -1034,10 +1034,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Role selector
                 Row(
                   children: _roles.map((r) {
-                    final isActive = _role == r.$1;
+                    final isActive = _role == r[0];
                     return Expanded(
                       child: GestureDetector(
-                        onTap: () => setState(() => _role = r.$1),
+                        onTap: () => setState(() => _role = r[0]),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 220),
                           margin: const EdgeInsets.only(right: 8),
@@ -1064,10 +1064,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Column(
                             children: [
-                              Text(r.$2,
+                              Text(r[1],
                                   style: const TextStyle(fontSize: 22)),
                               const SizedBox(height: 4),
-                              Text(r.$3,
+                              Text(r[2],
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -1748,10 +1748,10 @@ class _StudentDashboardScreenState
 
   Widget _buildBottomNav() {
     final items = [
-      (Icons.home_rounded, 'Beranda'),
-      (Icons.edit_note_rounded, 'Ujian'),
-      (Icons.bar_chart_rounded, 'Hasil'),
-      (Icons.person_rounded, 'Profil'),
+      <dynamic>[Icons.home_rounded, 'Beranda'],
+      <dynamic>[Icons.edit_note_rounded, 'Ujian'],
+      <dynamic>[Icons.bar_chart_rounded, 'Hasil'],
+      <dynamic>[Icons.person_rounded, 'Profil'],
     ];
     return Positioned(
       bottom: 0, left: 0, right: 0,
@@ -1790,13 +1790,13 @@ class _StudentDashboardScreenState
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(e.value.$1,
+                    Icon(e.value[0],
                         color: active
                             ? AppColors.blue400
                             : AppColors.gray500,
                         size: 22),
                     const SizedBox(height: 4),
-                    Text(e.value.$2,
+                    Text(e.value[1],
                         style: TextStyle(
                           fontSize: 10, fontWeight: FontWeight.w600,
                           color: active
@@ -2527,19 +2527,19 @@ class _ExamResultScreenState extends State<ExamResultScreen>
   late Animation<double> _scoreAnim;
 
   final _topics = [
-    ('Kalkulus', 0.90),
-    ('Trigonometri', 0.75),
-    ('Aljabar', 0.85),
-    ('Statistika', 0.60),
-    ('Geometri', 0.78),
+    <dynamic>['Kalkulus', 0.90],
+    <dynamic>['Trigonometri', 0.75],
+    <dynamic>['Aljabar', 0.85],
+    <dynamic>['Statistika', 0.60],
+    <dynamic>['Geometri', 0.78],
   ];
 
   final _ranking = [
-    ('🥇', 'Siti Rahayu', '96', AppColors.amber),
-    ('🥈', 'Budi Santoso', '91', AppColors.gray400),
-    ('🥉', 'Ahmad Fauzi', '88', AppColors.amber),
-    ('4', 'Dian Pratiwi', '85', AppColors.gray500),
-    ('5', 'Rini Susanti', '83', AppColors.gray500),
+    <dynamic>['🥇', 'Siti Rahayu', '96', AppColors.amber],
+    <dynamic>['🥈', 'Budi Santoso', '91', AppColors.gray400],
+    <dynamic>['🥉', 'Ahmad Fauzi', '88', AppColors.amber],
+    <dynamic>['4', 'Dian Pratiwi', '85', AppColors.gray500],
+    <dynamic>['5', 'Rini Susanti', '83', AppColors.gray500],
   ];
 
   @override
@@ -2728,7 +2728,7 @@ class _ExamResultScreenState extends State<ExamResultScreen>
                                 title: 'Analisis per Topik'),
                             const SizedBox(height: 14),
                             ..._topics.map((t) => _TopicBar(
-                                  label: t.$1, progress: t.$2)),
+                                  label: t[0], progress: t[1])),
                           ],
                         ),
                       ),
@@ -2774,7 +2774,7 @@ class _ExamResultScreenState extends State<ExamResultScreen>
                                   children: [
                                     SizedBox(
                                       width: 28,
-                                      child: Text(r.$1,
+                                      child: Text(r[0],
                                           style: const TextStyle(
                                               fontSize: 16)),
                                     ),
@@ -2798,7 +2798,7 @@ class _ExamResultScreenState extends State<ExamResultScreen>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(r.$2,
+                                          Text(r[1],
                                               style: const TextStyle(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w700,
@@ -2814,11 +2814,11 @@ class _ExamResultScreenState extends State<ExamResultScreen>
                                         ],
                                       ),
                                     ),
-                                    Text(r.$3,
+                                    Text(r[2],
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w900,
-                                          color: r.$4,
+                                          color: r[3],
                                         )),
                                   ],
                                 ),
@@ -2951,16 +2951,16 @@ class _TeacherDashboardScreenState
   int _tab = 0;
 
   final _quickActions = [
-    ('📥', 'Import Soal', 'Upload Excel/CSV', AppColors.blue500),
-    ('➕', 'Buat Ujian', 'Atur jadwal baru', AppColors.purple600),
-    ('🔑', 'Token Ujian', 'Generate token', AppColors.cyan400),
-    ('📊', 'Nilai & Analisis', 'Statistik', AppColors.emerald),
+    <dynamic>['📥', 'Import Soal', 'Upload Excel/CSV', AppColors.blue500],
+    <dynamic>['➕', 'Buat Ujian', 'Atur jadwal baru', AppColors.purple600],
+    <dynamic>['🔑', 'Token Ujian', 'Generate token', AppColors.cyan400],
+    <dynamic>['📊', 'Nilai & Analisis', 'Statistik', AppColors.emerald],
   ];
 
   final _students = [
-    ('😊', 'Aktif'), ('🧑', 'Aktif'), ('😐', '⚠ Tab'),
-    ('👩', 'Aktif'), ('🧒', 'Aktif'), ('😴', '⛔ Off'),
-    ('👧', 'Aktif'), ('🙎', 'Aktif'),
+    <dynamic>['😊', 'Aktif'), ('🧑', 'Aktif'), ('😐', '⚠ Tab'],
+    <dynamic>['👩', 'Aktif'), ('🧒', 'Aktif'), ('😴', '⛔ Off'],
+    <dynamic>['👧', 'Aktif'), ('🙎', 'Aktif'],
   ];
 
   @override
@@ -3111,20 +3111,20 @@ class _TeacherDashboardScreenState
           onTap: () {},
           child: GlassCard(
             padding: const EdgeInsets.all(14),
-            borderColor: a.$4.withOpacity(0.2),
+            borderColor: a[3].withOpacity(0.2),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(a.$1,
+                Text(a[0],
                     style: const TextStyle(fontSize: 24)),
                 const SizedBox(height: 6),
-                Text(a.$2,
+                Text(a[1],
                     style: const TextStyle(
                       fontSize: 13, fontWeight: FontWeight.w700,
                       color: Colors.white,
                     )),
-                Text(a.$3, style: AppText.caption),
+                Text(a[2], style: AppText.caption),
               ],
             ),
           ),
@@ -3164,8 +3164,8 @@ class _TeacherDashboardScreenState
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
             children: _students.map((s) {
-              final isWarn = s.$2.startsWith('⚠');
-              final isOff = s.$2.startsWith('⛔');
+              final isWarn = s[1].startsWith('⚠');
+              final isOff = s[1].startsWith('⛔');
               return Container(
                 decoration: BoxDecoration(
                   color: isWarn
@@ -3185,10 +3185,10 @@ class _TeacherDashboardScreenState
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(s.$1,
+                    Text(s[0],
                         style: const TextStyle(fontSize: 20)),
                     const SizedBox(height: 2),
-                    Text(s.$2,
+                    Text(s[1],
                         style: TextStyle(
                           fontSize: 8, fontWeight: FontWeight.w700,
                           color: isWarn
@@ -3264,12 +3264,9 @@ class _TeacherDashboardScreenState
 
   Widget _buildSubmissions() {
     final subs = [
-      ('😊', 'Siti Rahayu', 'Selesai • 2 mnt lalu', '96',
-          AppColors.emerald),
-      ('🧑', 'Budi Santoso', 'Selesai • 5 mnt lalu', '91',
-          AppColors.blue300),
-      ('👩', 'Dian Pratiwi', 'Selesai • 8 mnt lalu', '85',
-          AppColors.blue300),
+      <dynamic>['😊', 'Siti Rahayu', 'Selesai • 2 mnt lalu', '96', AppColors.emerald],
+      <dynamic>['🧑', 'Budi Santoso', 'Selesai • 5 mnt lalu', '91', AppColors.blue300],
+      <dynamic>['👩', 'Dian Pratiwi', 'Selesai • 8 mnt lalu', '85', AppColors.blue300],
     ];
     return Column(
       children: subs.map((s) => Padding(
@@ -3278,22 +3275,22 @@ class _TeacherDashboardScreenState
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Text(s.$1, style: const TextStyle(fontSize: 24)),
+              Text(s[0], style: const TextStyle(fontSize: 24)),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(s.$2, style: AppText.body.copyWith(
+                    Text(s[1], style: AppText.body.copyWith(
                         fontWeight: FontWeight.w700)),
-                    Text(s.$3, style: AppText.caption),
+                    Text(s[2], style: AppText.caption),
                   ],
                 ),
               ),
-              Text(s.$4,
+              Text(s[3],
                   style: TextStyle(
                     fontSize: 20, fontWeight: FontWeight.w900,
-                    color: s.$5,
+                    color: s[4],
                   )),
             ],
           ),
@@ -3304,10 +3301,10 @@ class _TeacherDashboardScreenState
 
   Widget _buildBottomNav() {
     final items = [
-      (Icons.home_rounded, 'Beranda'),
-      (Icons.edit_note_rounded, 'Ujian'),
-      (Icons.download_rounded, 'Import'),
-      (Icons.person_rounded, 'Profil'),
+      <dynamic>[Icons.home_rounded, 'Beranda'],
+      <dynamic>[Icons.edit_note_rounded, 'Ujian'],
+      <dynamic>[Icons.download_rounded, 'Import'],
+      <dynamic>[Icons.person_rounded, 'Profil'],
     ];
     return Positioned(
       bottom: 0, left: 0, right: 0,
@@ -3336,12 +3333,12 @@ class _TeacherDashboardScreenState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(e.value.$1,
+                  Icon(e.value[0],
                       color: active
                           ? AppColors.blue400 : AppColors.gray500,
                       size: 22),
                   const SizedBox(height: 4),
-                  Text(e.value.$2,
+                  Text(e.value[1],
                       style: TextStyle(
                         fontSize: 10, fontWeight: FontWeight.w600,
                         color: active
@@ -3393,36 +3390,25 @@ class _AdminDashboardScreenState
     extends State<AdminDashboardScreen> {
 
   final _stats = [
-    ('🎒', '847', 'Total Siswa', '↑ 12 baru bulan ini',
-        [AppColors.blue500, const Color(0xFF1D4ED8)]),
-    ('👩‍🏫', '48', 'Total Guru', 'Aktif semester ini',
-        [AppColors.purple600, const Color(0xFF6D28D9)]),
-    ('📝', '156', 'Ujian Digelar', '↑ 23 bulan ini',
-        [const Color(0xFF0891B2), AppColors.cyan400]),
-    ('📊', '82.4', 'Rata Nilai', '↑ 4.2 vs semester lalu',
-        [const Color(0xFF059669), AppColors.emerald]),
+    <dynamic>['🎒', '847', 'Total Siswa', '↑ 12 baru bulan ini', [AppColors.blue500, const Color(0xFF1D4ED8)]],
+    <dynamic>['👩‍🏫', '48', 'Total Guru', 'Aktif semester ini', [AppColors.purple600, const Color(0xFF6D28D9)]],
+    <dynamic>['📝', '156', 'Ujian Digelar', '↑ 23 bulan ini', [const Color(0xFF0891B2), AppColors.cyan400]],
+    <dynamic>['📊', '82.4', 'Rata Nilai', '↑ 4.2 vs semester lalu', [const Color(0xFF059669), AppColors.emerald]],
   ];
 
   final _activity = [
-    (AppColors.emerald, 'Bu Sari memulai ujian Matematika XII IPA 1',
-        '2 mnt lalu'),
-    (AppColors.amber,
-        '⚠ Kecurangan: Doni XII IPS 2 pindah tab',
-        '8 mnt lalu'),
-    (AppColors.blue400, 'Pak Ahmad import 45 soal Fisika via Excel',
-        '15 mnt lalu'),
-    (AppColors.purple400,
-        '156 siswa menyelesaikan UTS Semester Ganjil',
-        '1 jam lalu'),
-    (AppColors.gray500, 'Backup otomatis database berhasil',
-        '2 jam lalu'),
+    <dynamic>[AppColors.emerald, 'Bu Sari memulai ujian Matematika XII IPA 1', '2 mnt lalu'],
+    <dynamic>[AppColors.amber, '⚠ Kecurangan: Doni XII IPS 2 pindah tab', '8 mnt lalu'],
+    <dynamic>[AppColors.blue400, 'Pak Ahmad import 45 soal Fisika via Excel', '15 mnt lalu'],
+    <dynamic>[AppColors.purple400, '156 siswa menyelesaikan UTS Semester Ganjil', '1 jam lalu'],
+    <dynamic>[AppColors.gray500, 'Backup otomatis database berhasil', '2 jam lalu'],
   ];
 
   final _quickActions = [
-    ('📥', 'Import Data', 'Siswa, Soal, Jadwal', AppColors.blue500),
-    ('📤', 'Export Nilai', 'PDF & Excel', AppColors.emerald),
-    ('👥', 'Kelola User', 'Siswa & Guru', AppColors.purple500),
-    ('🏫', 'Kelas & Mapel', 'Struktur sekolah', AppColors.cyan400),
+    <dynamic>['📥', 'Import Data', 'Siswa, Soal, Jadwal', AppColors.blue500],
+    <dynamic>['📤', 'Export Nilai', 'PDF & Excel', AppColors.emerald],
+    <dynamic>['👥', 'Kelola User', 'Siswa & Guru', AppColors.purple500],
+    <dynamic>['🏫', 'Kelas & Mapel', 'Struktur sekolah', AppColors.cyan400],
   ];
 
   @override
@@ -3524,7 +3510,7 @@ class _AdminDashboardScreenState
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: s.$5,
+              colors: s[4],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -3533,20 +3519,20 @@ class _AdminDashboardScreenState
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(s.$1, style: const TextStyle(fontSize: 28)),
+              Text(s[0], style: const TextStyle(fontSize: 28)),
               const Spacer(),
-              Text(s.$2,
+              Text(s[1],
                   style: const TextStyle(
                     fontSize: 28, fontWeight: FontWeight.w900,
                     color: Colors.white,
                   )),
-              Text(s.$3,
+              Text(s[2],
                   style: const TextStyle(
                     fontSize: 11, fontWeight: FontWeight.w600,
                     color: Colors.white70,
                   )),
               const SizedBox(height: 4),
-              Text(s.$4,
+              Text(s[3],
                   style: const TextStyle(
                     fontSize: 10, color: Colors.white54)),
             ],
@@ -3566,17 +3552,17 @@ class _AdminDashboardScreenState
       childAspectRatio: 1.5,
       children: _quickActions.map((a) => GlassCard(
         padding: const EdgeInsets.all(14),
-        borderColor: a.$4.withOpacity(0.2),
+        borderColor: a[3].withOpacity(0.2),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(a.$1, style: const TextStyle(fontSize: 24)),
+            Text(a[0], style: const TextStyle(fontSize: 24)),
             const SizedBox(height: 6),
-            Text(a.$2, style: const TextStyle(
+            Text(a[1], style: const TextStyle(
                 fontSize: 13, fontWeight: FontWeight.w700,
                 color: Colors.white)),
-            Text(a.$3, style: AppText.caption),
+            Text(a[2], style: AppText.caption),
           ],
         ),
       )).toList(),
@@ -3599,18 +3585,18 @@ class _AdminDashboardScreenState
                   width: 8, height: 8,
                   margin: const EdgeInsets.only(top: 4),
                   decoration: BoxDecoration(
-                    color: a.$1, shape: BoxShape.circle),
+                    color: a[0], shape: BoxShape.circle),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(a.$2,
+                  child: Text(a[1],
                       style: const TextStyle(
                         fontSize: 12, color: AppColors.gray200,
                         height: 1.5,
                       )),
                 ),
                 const SizedBox(width: 8),
-                Text(a.$3, style: AppText.caption),
+                Text(a[2], style: AppText.caption),
               ],
             ),
           );
@@ -3621,10 +3607,10 @@ class _AdminDashboardScreenState
 
   Widget _buildBottomNav() {
     final items = [
-      (Icons.dashboard_rounded, 'Dashboard'),
-      (Icons.people_rounded, 'Users'),
-      (Icons.download_rounded, 'Import'),
-      (Icons.settings_rounded, 'Pengaturan'),
+      <dynamic>[Icons.dashboard_rounded, 'Dashboard'],
+      <dynamic>[Icons.people_rounded, 'Users'],
+      <dynamic>[Icons.download_rounded, 'Import'],
+      <dynamic>[Icons.settings_rounded, 'Pengaturan'],
     ];
     return Positioned(
       bottom: 0, left: 0, right: 0,
@@ -3651,12 +3637,12 @@ class _AdminDashboardScreenState
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(e.value.$1,
+                  Icon(e.value[0],
                       color: active
                           ? AppColors.blue400 : AppColors.gray500,
                       size: 22),
                   const SizedBox(height: 4),
-                  Text(e.value.$2,
+                  Text(e.value[1],
                       style: TextStyle(
                         fontSize: 10, fontWeight: FontWeight.w600,
                         color: active
@@ -3687,12 +3673,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _offline = true;
 
   final _settings = [
-    (Icons.person_outline_rounded, 'Edit Profil', 'toggle', null),
-    (Icons.lock_outline_rounded, 'Ubah Password', 'arrow', null),
-    (Icons.language_rounded, 'Bahasa', 'value', 'Indonesia'),
-    (Icons.shield_outlined, 'Privasi & Keamanan', 'arrow', null),
-    (Icons.info_outline_rounded, 'Tentang ExamPro', 'arrow', null),
-    (Icons.help_outline_rounded, 'Bantuan', 'arrow', null),
+    <dynamic>[Icons.person_outline_rounded, 'Edit Profil', 'toggle', null],
+    <dynamic>[Icons.lock_outline_rounded, 'Ubah Password', 'arrow', null],
+    <dynamic>[Icons.language_rounded, 'Bahasa', 'value', 'Indonesia'],
+    <dynamic>[Icons.shield_outlined, 'Privasi & Keamanan', 'arrow', null],
+    <dynamic>[Icons.info_outline_rounded, 'Tentang ExamPro', 'arrow', null],
+    <dynamic>[Icons.help_outline_rounded, 'Bantuan', 'arrow', null],
   ];
 
   @override
