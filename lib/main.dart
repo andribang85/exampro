@@ -49,16 +49,79 @@ import 'dart:ui' show FontFeature;
 //  3. Ganti USE_FIREBASE = true
 // ─────────────────────────────────────────────
 
-// 🔥 GANTI JADI true SETELAH SETUP FIREBASE:
-const bool USE_FIREBASE = false;
+// ─────────────────────────────────────────────
+//  SUPABASE SERVICE
+//  Ganti URL dan KEY dengan milik kamu
+// ─────────────────────────────────────────────
 
-class OnlineService {
-  static final OnlineService _i = OnlineService._();
-  factory OnlineService() => _i;
-  OnlineService._();
+// ⚡ GANTI 2 BARIS INI DENGAN DATA SUPABASE KAMU:
+const String SUPABASE_URL = 'https://jnawoulowpkoditbqjwp.supabase.co';
+const String SUPABASE_KEY = 'sb_publishable_za0InLhVW6Eukz8Yo5q7DQ_PvcNq1FK';
+
+// Mode: true = online Supabase, false = demo offline
+const bool USE_SUPABASE = true;
+
+class SupabaseService {
+  static final SupabaseService _i = SupabaseService._();
+  factory SupabaseService() => _i;
+  SupabaseService._();
 
   Map<String, dynamic>? currentUser;
   bool get isLoggedIn => currentUser != null;
+
+  // HTTP headers untuk Supabase REST API
+  Map<String, String> get _headers => {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer $SUPABASE_KEY',
+    'Prefer': 'return=representation',
+  };
+
+  // ── GET helper ──────────────────────────────
+  Future<List<dynamic>> _get(String endpoint) async {
+    if (!USE_SUPABASE) return [];
+    try {
+      final uri = Uri.parse('$SUPABASE_URL/rest/v1/$endpoint');
+      final resp = await Future.any([
+        _httpGet(uri),
+        Future.delayed(const Duration(seconds: 10),
+            () => throw Exception('Timeout')),
+      ]);
+      return resp;
+    } catch (e) {
+      print('Supabase GET error: $e');
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> _httpGet(Uri uri) async {
+    // NOTE: Uncomment setelah tambah http package di pubspec.yaml:
+    // import 'package:http/http.dart' as http;
+    // final resp = await http.get(uri, headers: _headers);
+    // if (resp.statusCode == 200) return jsonDecode(resp.body);
+    // throw Exception('HTTP ${resp.statusCode}');
+    return [];
+  }
+
+  Future<Map<String, dynamic>?> _post(
+      String endpoint, Map<String, dynamic> body) async {
+    if (!USE_SUPABASE) return null;
+    try {
+      // final resp = await http.post(
+      //   Uri.parse('$SUPABASE_URL/rest/v1/$endpoint'),
+      //   headers: _headers,
+      //   body: jsonEncode(body),
+      // );
+      // if (resp.statusCode == 201) {
+      //   final list = jsonDecode(resp.body) as List;
+      //   return list.isNotEmpty ? list.first : null;
+      // }
+      return null;
+    } catch (e) {
+      print('Supabase POST error: $e');
+      return null;
+    }
+  }
 
   // ── LOGIN ────────────────────────────────────
   Future<Map<String, dynamic>?> login({
@@ -66,171 +129,160 @@ class OnlineService {
     required String password,
     required String role,
   }) async {
-    if (USE_FIREBASE) {
-      return await _loginFirebase(nis, password, role);
+    if (nis.trim().isEmpty || password.isEmpty) return null;
+
+    if (USE_SUPABASE) {
+      return await _loginSupabase(nis, password, role);
     }
     return await _loginDemo(nis, password, role);
   }
 
-  // Demo login - works offline
-  Future<Map<String, dynamic>?> _loginDemo(
+  Future<Map<String, dynamic>?> _loginSupabase(
       String nis, String password, String role) async {
-    await Future.delayed(const Duration(milliseconds: 900));
-    // Accept any non-empty credentials in demo mode
-    if (nis.isNotEmpty && password.isNotEmpty) {
-      currentUser = {
-        'uid': 'demo_${role}_001',
-        'name': role == 'siswa' ? 'Ahmad Fauzi'
-               : role == 'guru' ? 'Bu. Sari Dewi'
-               : 'Admin Sekolah',
-        'nis': nis,
-        'role': role,
-        'class': 'XII IPA 1',
-        'grade': 12,
-        'school': 'SMA Nusantara 1',
-        'schoolId': 'sma_nusantara_1',
-        'avatar': nis.substring(0, 2).toUpperCase(),
-      };
-      return currentUser;
-    }
-    return null;
+    // Query users tabel by NIS + password + role
+    final endpoint =
+        'users?nis=eq.$nis&password_plain=eq.$password&role=eq.$role&is_active=eq.true&select=*&limit=1';
+    final data = await _get(endpoint);
+    if (data.isEmpty) return null;
+    currentUser = Map<String, dynamic>.from(data.first);
+    return currentUser;
   }
 
-  // Firebase login - requires Firebase setup
-  Future<Map<String, dynamic>?> _loginFirebase(
+  Future<Map<String, dynamic>?> _loginDemo(
       String nis, String password, String role) async {
-    // NOTE: Uncomment after adding Firebase packages to pubspec.yaml
-    // try {
-    //   // Find email by NIS
-    //   final query = await FirebaseFirestore.instance
-    //       .collection('users')
-    //       .where('nis', isEqualTo: nis)
-    //       .where('role', isEqualTo: role)
-    //       .limit(1)
-    //       .get();
-    //   if (query.docs.isEmpty) return null;
-    //   final email = query.docs.first.data()['email'] as String;
-    //
-    //   // Sign in
-    //   final cred = await FirebaseAuth.instance
-    //       .signInWithEmailAndPassword(email: email, password: password);
-    //
-    //   // Get full profile
-    //   final doc = await FirebaseFirestore.instance
-    //       .collection('users').doc(cred.user!.uid).get();
-    //   currentUser = doc.data()!;
-    //   currentUser!['uid'] = cred.user!.uid;
-    //   return currentUser;
-    // } on FirebaseAuthException {
-    //   return null;
-    // }
-    return await _loginDemo(nis, password, role); // fallback
+    await Future.delayed(const Duration(milliseconds: 800));
+    currentUser = {
+      'id': 'demo_${role}_001',
+      'name': role == 'siswa' ? 'Ahmad Fauzi'
+             : role == 'guru' ? 'Bu. Sari Dewi'
+             : 'Admin Sekolah',
+      'nis': nis,
+      'role': role,
+      'class_name': 'XII IPA 1',
+      'grade': 12,
+      'school': 'SMA Nusantara 1',
+      'school_id': 'sma_nusantara_1',
+    };
+    return currentUser;
   }
 
   // ── GET EXAMS ────────────────────────────────
   Future<List<Map<String, dynamic>>> getExams() async {
-    if (USE_FIREBASE) return await _getExamsFirebase();
-    return await _getExamsDemo();
+    if (USE_SUPABASE) {
+      final className = currentUser?['class_name'] ?? '';
+      final data = await _get(
+        'exams?class_name=eq.$className&status=in.(active,scheduled)&order=start_time.asc&select=*',
+      );
+      return data.map((e) => Map<String, dynamic>.from(e)).toList();
+    }
+    return _demoExams();
   }
 
-  Future<List<Map<String, dynamic>>> _getExamsDemo() async {
-    await Future.delayed(const Duration(milliseconds: 600));
-    return [
-      {
-        'id': 'exam_001',
-        'subject': 'Matematika Wajib',
-        'type': 'UTS Ganjil 2026',
-        'class': currentUser?['class'] ?? 'XII IPA 1',
-        'duration': 90,
-        'questionCount': 40,
-        'status': 'active',
-        'time': 'Sekarang',
-        'token': 'A7X9B2',
-        'teacherName': 'Bu. Sari Dewi',
-      },
-      {
-        'id': 'exam_002',
-        'subject': 'Fisika',
-        'type': 'Ulangan Harian',
-        'class': currentUser?['class'] ?? 'XII IPA 1',
-        'duration': 60,
-        'questionCount': 30,
-        'status': 'upcoming',
-        'time': 'Besok, 08:00',
-        'token': '',
-        'teacherName': 'Pak. Ahmad',
-      },
-      {
-        'id': 'exam_003',
-        'subject': 'Bahasa Indonesia',
-        'type': 'UAS Semester 2',
-        'class': currentUser?['class'] ?? 'XII IPA 1',
-        'duration': 90,
-        'questionCount': 50,
-        'status': 'upcoming',
-        'time': "Jum'at, 10:00",
-        'token': '',
-        'teacherName': 'Bu. Ratna',
-      },
-    ];
+  List<Map<String, dynamic>> _demoExams() => [
+    {
+      'id': 'exam_001',
+      'subject': 'Matematika Wajib',
+      'title': 'UTS Matematika Ganjil 2026',
+      'class_name': currentUser?['class_name'] ?? 'XII IPA 1',
+      'teacher_name': 'Bu. Sari Dewi',
+      'duration': 90,
+      'status': 'active',
+      'time': 'Sekarang',
+      'token': 'A7X9B2',
+    },
+    {
+      'id': 'exam_002',
+      'subject': 'Fisika',
+      'title': 'Ulangan Harian Fisika',
+      'class_name': currentUser?['class_name'] ?? 'XII IPA 1',
+      'teacher_name': 'Pak Ahmad',
+      'duration': 60,
+      'status': 'scheduled',
+      'time': 'Besok, 08:00',
+      'token': '',
+    },
+    {
+      'id': 'exam_003',
+      'subject': 'Bahasa Indonesia',
+      'title': 'UAS Semester 2',
+      'class_name': currentUser?['class_name'] ?? 'XII IPA 1',
+      'teacher_name': 'Bu. Ratna',
+      'duration': 90,
+      'status': 'scheduled',
+      'time': "Jum'at, 10:00",
+      'token': '',
+    },
+  ];
+
+  // ── GET QUESTIONS ─────────────────────────────
+  Future<List<Map<String, dynamic>>> getQuestions(String examId) async {
+    if (USE_SUPABASE) {
+      final data = await _get(
+        'questions?exam_id=eq.$examId&order=question_order.asc&select=*',
+      );
+      return data.map((e) => Map<String, dynamic>.from(e)).toList();
+    }
+    return _demoQuestions();
   }
 
-  Future<List<Map<String, dynamic>>> _getExamsFirebase() async {
-    // final userClass = currentUser?['class'] ?? '';
-    // final snap = await FirebaseFirestore.instance
-    //     .collection('exams')
-    //     .where('class', isEqualTo: userClass)
-    //     .where('status', whereIn: ['active', 'scheduled'])
-    //     .orderBy('startTime')
-    //     .get();
-    // return snap.docs.map((d) {
-    //   final data = d.data(); data['id'] = d.id; return data;
-    // }).toList();
-    return await _getExamsDemo();
-  }
+  List<Map<String, dynamic>> _demoQuestions() => [
+    {
+      'id': 'q1', 'question_order': 1, 'topic': 'Kalkulus',
+      'question_text': 'Turunan dari f(x) = 3x² − 2x + 5 pada x = 2 adalah...',
+      'option_a': '8', 'option_b': '10', 'option_c': '12',
+      'option_d': '14', 'option_e': '16', 'correct_answer': 'C', 'points': 2.5,
+    },
+    {
+      'id': 'q2', 'question_order': 2, 'topic': 'Kalkulus',
+      'question_text': 'Nilai dari ∫₀² (3x² + 2x) dx adalah...',
+      'option_a': '10', 'option_b': '12', 'option_c': '14',
+      'option_d': '16', 'option_e': '18', 'correct_answer': 'B', 'points': 2.5,
+    },
+    {
+      'id': 'q3', 'question_order': 3, 'topic': 'Kalkulus',
+      'question_text': 'Limit dari (x² - 4)/(x - 2) saat x mendekati 2 adalah...',
+      'option_a': '0', 'option_b': '2', 'option_c': '4',
+      'option_d': '∞', 'option_e': 'Tidak ada', 'correct_answer': 'C', 'points': 2.5,
+    },
+    {
+      'id': 'q4', 'question_order': 4, 'topic': 'Aljabar',
+      'question_text': 'Jika 2x + 3 = 11, maka nilai x adalah...',
+      'option_a': '3', 'option_b': '4', 'option_c': '5',
+      'option_d': '6', 'option_e': '7', 'correct_answer': 'B', 'points': 2.5,
+    },
+    {
+      'id': 'q5', 'question_order': 5, 'topic': 'Trigonometri',
+      'question_text': 'Jika sin α = 3/5 dan α sudut lancip, maka cos α = ...',
+      'option_a': '4/5', 'option_b': '3/4', 'option_c': '5/4',
+      'option_d': '1/5', 'option_e': '2/5', 'correct_answer': 'A', 'points': 2.5,
+    },
+  ];
 
   // ── GET HISTORY ──────────────────────────────
   Future<List<Map<String, dynamic>>> getHistory() async {
-    await Future.delayed(const Duration(milliseconds: 500));
+    if (USE_SUPABASE) {
+      final studentName = currentUser?['name'] ?? '';
+      final data = await _get(
+        'results?student_name=eq.$studentName&order=submitted_at.desc&select=*&limit=10',
+      );
+      return data.map((e) => Map<String, dynamic>.from(e)).toList();
+    }
     return [
-      {
-        'id': 'result_001',
-        'subject': 'Kimia',
-        'type': 'Ulangan Harian',
-        'time': '3 hari lalu',
-        'score': 88,
-        'duration': 75,
-        'status': 'done',
-      },
-      {
-        'id': 'result_002',
-        'subject': 'Biologi',
-        'type': 'Kuis',
-        'time': '1 minggu lalu',
-        'score': 82,
-        'duration': 60,
-        'status': 'done',
-      },
-      {
-        'id': 'result_003',
-        'subject': 'Kimia',
-        'type': 'UTS',
-        'time': '2 minggu lalu',
-        'score': 79,
-        'duration': 90,
-        'status': 'done',
-      },
+      {'subject': 'Kimia', 'score': 88, 'time': '3 hari lalu', 'status': 'done'},
+      {'subject': 'Biologi', 'score': 82, 'time': '1 minggu lalu', 'status': 'done'},
+      {'subject': 'Fisika', 'score': 79, 'time': '2 minggu lalu', 'status': 'done'},
     ];
   }
 
   // ── VERIFY TOKEN ─────────────────────────────
   Future<bool> verifyToken(String examId, String token) async {
-    if (USE_FIREBASE) {
-      // final doc = await FirebaseFirestore.instance
-      //     .collection('exams').doc(examId).get();
-      // return doc.data()?['token'] == token.toUpperCase();
+    if (USE_SUPABASE) {
+      final data = await _get(
+        'exams?id=eq.$examId&token=eq.${token.toUpperCase()}&select=id&limit=1',
+      );
+      return data.isNotEmpty;
     }
-    await Future.delayed(const Duration(milliseconds: 700));
+    await Future.delayed(const Duration(milliseconds: 600));
     return token.trim().length == 6;
   }
 
@@ -240,70 +292,85 @@ class OnlineService {
     required Map<int, String> answers,
     required bool isAutoSubmit,
     required int timeTaken,
+    required List<Map<String, dynamic>> questions,
   }) async {
-    if (USE_FIREBASE) return await _submitFirebase(examId, answers, isAutoSubmit, timeTaken);
-    return await _submitDemo(answers);
-  }
+    // Hitung skor
+    int correct = 0;
+    for (int i = 0; i < questions.length; i++) {
+      final q = questions[i];
+      final studentAns = answers[i] ?? '';
+      if (studentAns == q['correct_answer']) correct++;
+    }
+    final total = questions.length;
+    final score = total > 0 ? (correct / total * 100).round() : 0;
+    final passed = score >= 70;
 
-  Future<Map<String, dynamic>> _submitDemo(Map<int, String> answers) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    final total = 5;
-    final correct = answers.values.where((a) => a == 'C').length + 2;
-    final safeCorrect = correct.clamp(0, total);
-    final score = (safeCorrect / total * 100).round();
+    if (USE_SUPABASE) {
+      await _post('results', {
+        'exam_id': examId,
+        'student_name': currentUser?['name'] ?? '',
+        'student_class': currentUser?['class_name'] ?? '',
+        'subject': 'Ujian',
+        'score': score,
+        'correct_count': correct,
+        'wrong_count': total - correct,
+        'time_taken': timeTaken,
+        'is_passed': passed,
+        'is_auto_submit': isAutoSubmit,
+        'answers': answers.map((k, v) => MapEntry(k.toString(), v)),
+      });
+    }
+
     return {
       'score': score,
-      'correct': safeCorrect,
-      'wrong': total - safeCorrect,
+      'correct': correct,
+      'wrong': total - correct,
       'unanswered': total - answers.length,
       'rank': 3,
       'totalStudents': 32,
-      'timeTaken': 72,
+      'timeTaken': timeTaken ~/ 60,
       'grade': score >= 90 ? 'A' : score >= 80 ? 'A' : score >= 70 ? 'B' : 'C',
-      'passed': score >= 70,
+      'passed': passed,
       'topicScores': {
-        'Kalkulus': 90,
-        'Trigonometri': 75,
-        'Aljabar': 85,
-        'Statistika': 60,
+        'Kalkulus': 90, 'Trigonometri': 75,
+        'Aljabar': 85, 'Statistika': 60,
       },
     };
   }
 
-  Future<Map<String, dynamic>> _submitFirebase(String examId,
-      Map<int, String> answers, bool isAutoSubmit, int timeTaken) async {
-    // Save result to Firestore
-    // await FirebaseFirestore.instance.collection('results').add({
-    //   'examId': examId,
-    //   'studentId': currentUser?['uid'],
-    //   'studentName': currentUser?['name'],
-    //   'answers': answers.map((k, v) => MapEntry(k.toString(), v)),
-    //   'timeTaken': timeTaken,
-    //   'isAutoSubmit': isAutoSubmit,
-    //   'submittedAt': FieldValue.serverTimestamp(),
-    // });
-    return await _submitDemo(answers);
+  // ── GENERATE TOKEN (Guru) ─────────────────────
+  Future<String> generateToken(String examId) async {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    final rng = math.Random();
+    final token = List.generate(6, (_) => chars[rng.nextInt(chars.length)]).join();
+
+    if (USE_SUPABASE) {
+      await _post('exams?id=eq.$examId', {
+        'token': token,
+        'token_expiry': DateTime.now()
+            .add(const Duration(minutes: 30))
+            .toIso8601String(),
+      });
+    }
+    return token;
   }
 
   // ── LOGOUT ───────────────────────────────────
   Future<void> logout() async {
-    // if (USE_FIREBASE) await FirebaseAuth.instance.signOut();
     currentUser = null;
   }
 
-  // ── GET STATS (for dashboard) ─────────────────
-  Map<String, dynamic> getStudentStats() {
-    return {
-      'avgScore': 87,
-      'examsDone': 12,
-      'upcomingCount': 3,
-      'rank': 3,
-    };
-  }
+  // ── STATS ─────────────────────────────────────
+  Map<String, dynamic> getStudentStats() => {
+    'avgScore': 87,
+    'examsDone': 12,
+    'upcomingCount': 3,
+    'rank': 3,
+  };
 }
 
 // Global instance
-final onlineService = OnlineService();
+final onlineService = SupabaseService();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
